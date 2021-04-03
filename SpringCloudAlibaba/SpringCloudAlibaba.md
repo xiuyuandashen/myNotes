@@ -663,7 +663,7 @@ Hystrix是Netflix开源的一个延迟和容错组件，用于隔离访问远程
 
 Sentinel 是阿里巴巴开源的一款断路器实现，在阿里内部已经被大规模采用，非常稳定。
 
-
+[官方文档](https://sentinelguard.io/zh-cn/docs/introduction.html)
 
 #### 什么是Sentinel
 
@@ -684,5 +684,63 @@ Sentinel（分布式系统的流量防卫兵）是阿里开源的一套用于服
 
 控制台（Dashboard）：基于SpringBoot 开发，打包后直接可以运行，不需要额外的Tomcat 等应用容器。
 
+##### Sentinel 控制台
 
 
+
+启动Dashboard,该jar包可以从这里[ 下载](https://github.com/alibaba/Sentinel/releases)
+
+```bash
+java -jar C:\soft\Sentinel\sentinel-dashboard-1.8.1.jar
+```
+
+<img src="./images/Sentinel客户端.png" >
+
+账号密码都是sentinel，
+
+用户可以通过如下参数进行配置：
+
+- `-Dsentinel.dashboard.auth.username=sentinel` 用于指定控制台的登录用户名为 `sentinel`；
+- `-Dsentinel.dashboard.auth.password=123456` 用于指定控制台的登录密码为 `123456`；如果省略这两个参数，默认用户和密码均为 `sentinel`；
+- `-Dserver.servlet.session.timeout=7200` 用于指定 Spring Boot 服务端 session 的过期时间，如 `7200` 表示 7200 秒；`60m` 表示 60 分钟，默认为 30 分钟；
+
+同样也可以直接在 Spring properties 文件中进行配置。
+
+ 
+
+##### 微服务sentinel依赖引入
+
+```xml
+<!-- 服务容错       -->
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+</dependency>
+```
+
+##### spring配置
+
+```yaml
+Spring:
+  cloud:
+    sentinel:
+      transport:
+        port: 8081 # 与控制台交流的端口，随意指定一个未被使用的端口即可
+        dashboard: localhost:8080 # 指定sentinel控制台服务的端口
+```
+
+这样我们访问服务就可以在控制台看到对应的监控
+
+<img src="./images/Sentinel控制台.png" >
+
+**QPS** 为每秒的访问量
+
+##### 控制台运行原理
+
+Sentinel 的控制台是一个SpringBoot 编写的程序。我们需要将我们的微服务程序注册到控制台，即在微服务中指定控制台的url地址。
+
+并且还要开启一个跟控制台传递数据的端口（未被占用），控制台也可以通过此端口调用微服务中的监控程序获取微服务的各种信息。
+
+
+
+##### Sentinel的功能介绍
