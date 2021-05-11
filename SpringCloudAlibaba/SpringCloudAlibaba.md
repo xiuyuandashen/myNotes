@@ -744,3 +744,143 @@ Sentinel 的控制台是一个SpringBoot 编写的程序。我们需要将我们
 
 
 ##### Sentinel的功能介绍
+
+我们可以在**簇点链路**中配置 流控规则、降级、热点、授权。
+
+###### Sentinel控流测试（流量控制）
+
+
+
+比如：
+
+<img src="./images/流控1.png" >
+
+<img src="./images/流控2.png" >
+
+<img src="./images/流控3.png" >
+
+在我们对一个接口进行流量监控之后（设置每秒访问2次）,在大于每秒2访问量时，就会返回以下内容。
+
+<img src="./images/流控之后.png" >
+
+Sentinel具体的功能请查看官网文档，或者其他详细的教学。
+
+###### 熔断降级
+
+1.通过并发线程数进行限制
+ Sentinel通过限制资源并发线程的数量,来减少不稳定资源对其他资源的影响.这样不但没有线程切换的损耗,也不需要预先分配线程池大小.当某个资源出现不稳定的情况下,例如相应时间变长,对资源的直接影响就是会造成线程数的逐步堆积.当线程数在特定资源上堆积到一定的数量之后,对该资源的新请求就会被拒绝.堆积的线程完成任务后才开始继续接受请求.
+ 2.通过响应时间对资源进行降级
+ 除了对并发线程数进行控制以外,sentinel还可以通过响应时间来快速降级不稳定的资源.当依赖的资源出现响应时间过长后,所有对资源的访问都会被直接拒绝,直接过了指定的时间之后才重新恢复.
+
+###### 系统负载保护
+
+sentinel同时对系统的维度提供保护,防止雪崩.当系统负载较高的时候,如果还持续让请求进入,可能会导致系统崩溃,无法响应.在集群环境下,网络负载均衡会把本应这台机器承载的流量转发到其他机器上去.如果这个时候其它机器也处于一个边缘状态,这个增加的流量就会导致这台机器也崩溃,最后导致整个集群不可用.
+
+
+
+##### 基本概念
+
+###### 资源
+
+资源就是Sentinel要保护的东西。
+
+资源是Sentinel的关键概念。它可以是Java程序中的任何内容，可以是一个服务，也可以是一个方法，甚至可以是一段代码。
+
+
+
+###### 规则
+
+规则就是用来定义如何进行保护资源的。
+
+作用在资源之上，定义以什么样的方式保护资源，主要包括流量控制规则、熔断降级规则以及系统保护规则。
+
+
+
+#### OpenFeign整合Sentinel
+
+##### 开启支持
+
+```yaml
+# 开启Openfeign对Sentinel的支持 这样需要调用的服务宕机，可以采取策略
+feign:
+  sentinel:
+    enabled: true
+```
+
+##### 创建容错类（当对应的远程调用服务出问题后的备胎(备选方案)）
+
+```java
+package com.zlf.edu.fegin.fallback;
+
+import com.zlf.commonutils.vo.ResultVo;
+import com.zlf.edu.fegin.OssFileService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @Auther: zlf
+ * @Date: 2021/04/09/22:26
+ * @Description: Oss远程调用服务的容错类 (服务熔断 本地备胎
+ */
+@Slf4j
+@Service
+public class OssFileServiceFallBack implements OssFileService {
+    @Override
+    public ResultVo test() {
+        return ResultVo.error();
+    }
+
+    @Override
+    public ResultVo remove(String url) {
+        log.info("熔断保护");
+        return ResultVo.error();
+    }
+}
+```
+
+在远程调用类上@FeignClient 中要添加属性fallback指明容错类的class
+
+```java
+package com.zlf.edu.fegin;
+
+import com.zlf.commonutils.vo.ResultVo;
+import com.zlf.edu.fegin.fallback.OssFileServiceFallBack;
+import org.apache.ibatis.annotations.Delete;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @Auther: zlf
+ * @Date: 2021/03/31/21:13
+ * @Description: Oss 提供给edu的远程调用
+ */
+@FeignClient(name = "service-oss" ,fallback = OssFileServiceFallBack.class) // nacos 中注册的服务名称  fallback 容错类
+public interface OssFileService {
+
+    @GetMapping("/eduOss/fileOss/test")
+    ResultVo test();
+
+    /**
+    * @Description: 从oss中删除文件
+    * @Param: [url]
+    * @return: com.zlf.commonutils.vo.ResultVo
+    * @Author: zlf
+    * @Date: 2021/4/9
+    */
+    @DeleteMapping("/eduOss/fileOss/remove")
+    ResultVo remove(@RequestBody String url);
+}
+```
+
+
+
+当我们将Oss服务宕机（不启动），这时候执行删除调用，会发现：容错类执行了
+
+<img src="./images/oepnfeign_sentinel.png" />
+
