@@ -109,3 +109,224 @@
 
 # kafka简介
 
+## 简介                 
+
+Kafka是最初由Linkedin公司开发，是一个分布式、分区的、多副本的、多订阅者，基于zookeeper协调的分布式日志系统（也可以当做MQ系统），常见可以用于web/nginx日志、访问日志，消息服务等等，Linkedin于2010年贡献给了Apache基金会并成为顶级开源项目。
+
+主要应用场景是：日志收集系统和消息系统。
+
+Kafka主要设计目标如下：
+
+- 以时间复杂度为O(1)的方式提供消息持久化能力，即使对TB级以上数据也能保证常数时间的访问性能。
+- 高吞吐率。即使在非常廉价的商用机器上也能做到单机支持每秒100K条消息的传输。
+- 支持Kafka Server间的消息分区，及分布式消费，同时保证每个partition内的消息顺序传输。
+- 同时支持离线数据处理和实时数据处理。
+- Scale out:支持在线水平扩展
+
+重点关键三个关键词
+
+- Publish and subscribe：发布与订阅
+- Store：存储
+- Process：处理
+
+## Kafka的应用场景
+
+我们通常将 Apache Kafka用在两类程序：
+
+- 建立实时数据管道，以可靠地在系统或应用程序之间获取数据
+
+- 构建实时流应用程序，以转换或响应数据流
+
+  <img src="./images/Kafka/11.png" style="margin-left:0px">
+
+  上图，我们可以看到
+
+  1、Producers ：可以有很多的应用程序，将消息数据放入到kafka集群中。
+
+  2、Consumers ：可以有很多的应用程序，对消息数据从kafka集群中拉取出来。
+
+  3、Connectors ：Kafka的连接器可以将数据库中的数据导入到kafka，也可以将kafka的数据导入到数据库中。
+
+  4、Stream Processors ： 流处理器可以从kafka中拉取数据，也可以将数据写入到kafka。
+
+  
+
+## kafka的优势
+
+​	**高吞吐量、低延迟：**kafka每秒可以处理几十万条消息，它的延迟最低只有几毫秒；
+
+​    **可扩展性：**kafka集群支持热扩展；
+
+​    **持久性、可靠性：**消息被持久化到本地磁盘，并且支持数据备份防止数据丢失；
+
+​    **容错性：**允许集群中节点故障（若副本数量为n,则允许n-1个节点故障）；
+
+​    **高并发：**支持数千个客户端同时读写。
+
+
+
+## kafka基础架构
+
+<img src="./images/Kafka/12.png" style="margin-left:0px">
+
+
+
+1. **Producer** ： 消息生产者，就是向 Kafka ；
+2. **Consumer** ： 消息消费者，向 Kafka broker 取消息的客户端；
+3. **Consumer Group （CG）**： 消费者组，由多个 consumer 组成。 消费者组内每个消费者负责消费不同分区的数据，一个分区只能由一个组内消费者消费；消费者组之间互不影响。 所有的消费者都属于某个消费者组，即消费者组是逻辑上的一个订阅者。
+4. **Broker** ：经纪人 一台 Kafka 服务器就是一个 broker。一个集群由多个 broker 组成。一个 broker可以容纳多个 topic。
+5. **Topic** ： 话题，可以理解为一个队列， 生产者和消费者面向的都是一个 topic；
+6. **Partition**： 为了实现扩展性，一个非常大的 topic 可以分布到多个 broker（即服务器）上，一个 topic 可以分为多个 partition，每个 partition 是一个有序的队列；
+7. **Replica**： 副本（Replication），为保证集群中的某个节点发生故障时， 该节点上的 partition 数据不丢失，且 Kafka仍然能够继续工作， Kafka 提供了副本机制，一个 topic 的每个分区都有若干个副本，一个 leader 和若干个 follower。
+8. **Leader**： 每个分区多个副本的“主”，生产者发送数据的对象，以及消费者消费数据的对象都是 leader。
+9. **Follower**： 每个分区多个副本中的“从”，实时从 leader 中同步数据，保持和 leader 数据的同步。 leader 发生故障时，某个 Follower 会成为新的 leader。
+
+# kafka安装和集群
+
+## 安装
+
+首先去官网下载安装包
+
+http://kafka.apache.org/downloads
+
+这边我们用的是2.4.1的
+
+由于kafka是需要zookeeper的支持，所以在此之前需要自行安装zookeeper。
+
+## 配置zookeeper 集群
+
+首先启动三台虚拟机，并且关闭防火墙
+
+`systemctl stop firewalld.service`
+
+分别配置三台虚拟机的zookeeper的conf目录下的zoo.cfg
+
+```bash
+# The number of milliseconds of each tick
+tickTime=2000
+# The number of ticks that the initial 
+# synchronization phase can take
+initLimit=10
+# The number of ticks that can pass between 
+# sending a request and getting an acknowledgement
+syncLimit=5
+# the directory where the snapshot is stored.
+# do not use /tmp for storage, /tmp here is just 
+# example sakes.
+dataDir=/tmp/zookeeper
+# the port at which the clients will connect
+clientPort=2181
+# the maximum number of client connections.
+# increase this if you need to handle more clients
+#maxClientCnxns=60
+#
+# Be sure to read the maintenance section of the 
+# administrator guide before turning on autopurge.
+#
+# http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
+#
+# The number of snapshots to retain in dataDir
+#autopurge.snapRetainCount=3
+# Purge task interval in hours
+# Set to "0" to disable auto purge feature
+#autopurge.purgeInterval=1
+
+## Metrics Providers
+#
+# https://prometheus.io Metrics Exporter
+#metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+#metricsProvider.httpPort=7000
+#metricsProvider.exportJvmInfo=true
+# 重点 三个虚拟机的配置都是一样的 server.id = ip:服务端内部通信的端口（默认2888）A:选举端口（默认是3888） #B 
+server.1=192.168.118.131:2888:3888
+server.2=192.168.118.130:2888:3888
+server.3=192.168.118.129:2888:3888
+
+```
+
+然后在 dataDir 所在的目录中创建 myid文件
+
+内容就是 id ，id就是配置文件中对应的server.id
+
+比如：
+
+<img src="./images/Kafka/15.png" style="margin-left:0px">
+
+启动zookeeper ，并查看状态
+
+<img src="./images/Kafka/16.png" style="margin-left:0px">
+
+<img src="./images/Kafka/17.png" style="margin-left:0px">
+
+<img src="./images/Kafka/18.png" style="margin-left:0px">
+
+## 配置kafka集群
+
+
+
+在centos 中 解压该安装包，在config中进行配置。
+
+配置 server.properties 
+
+集群节点1
+
+```bash
+# kafka 节点id 要唯一的
+broker.id=0
+# kafka数据存放的地址
+log.dirs=/usr/local/java/kafka_2.13-2.4.1/data
+```
+
+集群节点2
+
+```bash
+# kafka 节点id 要唯一的
+broker.id=1
+# kafka数据存放的地址
+log.dirs=/usr/local/java/kafka_2.13-2.4.1/data
+```
+
+集群节点3
+
+```bash
+# kafka 节点id 要唯一的
+broker.id=2
+# kafka数据存放的地址
+log.dirs=/usr/local/java/kafka_2.13-2.4.1/data
+```
+
+注意:
+
+日志目录下的 meta.properties 中的 broker.id 要与 配置文件的一致，否则启动会报错。
+
+
+
+配置kafka环境变量
+
+在 /etc/profile 中
+
+```bash
+KAFKA_HOME=/usr/local/java/kafka_2.13-2.4.1
+export JAVA_HOME HADOOP_HOME ARM_LINUX_GCC_HOME KAFKA_HOME  PATH
+```
+
+`source /etc/profile` 重新读取执行一下
+
+启动kafka
+
+先启动zookeeper
+
+`./zkServer.sh start` 
+
+在启动 kafka
+
+`nohup bin/kafka-server-start.sh config/server.properties &`
+
+使用jps查看
+
+<img src="./images/Kafka/13.png" style="margin-left:0px">
+
+测试kafka集群是否启动成功(没报错就是成功)
+
+<img src="./images/Kafka/14.png" style="margin-left:0px">
+
