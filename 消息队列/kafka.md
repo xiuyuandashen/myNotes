@@ -330,3 +330,18 @@ export JAVA_HOME HADOOP_HOME ARM_LINUX_GCC_HOME KAFKA_HOME  PATH
 
 <img src="./images/Kafka/14.png" style="margin-left:0px">
 
+# kafka基础操作
+
+## 创建 topic (主题)
+
+```bash
+# 创建名为 test的kafka主题
+bin/kafka-topics.sh --create --bootstrap-server zlf1:9092 --topic test
+# 查看当前kafka中的主题
+bin/kafka-topics.sh --list --bootstrap-server zlf1:9092 
+```
+
+## 生产消息到kafka
+
+
+
