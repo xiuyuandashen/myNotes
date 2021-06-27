@@ -341,7 +341,137 @@ bin/kafka-topics.sh --create --bootstrap-server zlf1:9092 --topic test
 bin/kafka-topics.sh --list --bootstrap-server zlf1:9092 
 ```
 
-## 生产消息到kafka
+## 生产者生产消息到kafka主题
+
+基于kafka内置的测试生产者脚本来读取标准输入的数据，放入到topic中
+
+```bash
+# 从控制台输入（生产）消息到主题 --- 生产者
+bin/kafka-console-producer.sh --broker-list zlf1:9092 --topic test
+
+```
+
+<img src="./images/Kafka/19.png" style="margin-left:0px">
+
+## 消费者读取(消费)消息
+
+基于kafka内置的测试消费者的脚本来消费topic中的数据
+
+```bash
+# 消费者读取主题的消息  --from-beginning 表示读取从头到尾的消息
+bin/kafka-console-consumer.sh --bootstrap-server zlf1:9092 --topic test --from-beginning
+```
+
+<img src="./images/Kafka/20.png" style="margin-left:0px">
+
+## 使用kafka Tools（可视化工具） 操作kafka
+
+[kakfaTool使用教程](https://www.cnblogs.com/miracle-luna/p/11299345.html)
+
+- 浏览kafka集群节点，多少个topic、多少个分区
+- 创建topic/删除topic
+- 浏览zookeeper中的数据
+
+首先创建一个集群
+
+<img src="./images/Kafka/21.png" style="margin-left:0px">
+
+然后就可以看到下面的信息了
+
+<img src="./images/Kafka/22.png" style="margin-left:0px">
+
+### 查看zookeeper的信息
+
+<img src="./images/Kafka/23.png" style="margin-left:0px">
+
+<img src="./images/Kafka/24.png" style="margin-left:0px">
+
+### 创建 topic 
+
+对着 Topics 右键  点击 Create Topic 
+
+<img src="./images/Kafka/25.png" style="margin-left:0px">
 
 
+
+# kafka基准测试
+
+## 什么是基准测试
+
+基准测试（benchmark testing）是一种测量和评估软件性能指标的活动。我们可以通过基准测试，了解到软件、硬件的性能水平。主要测试负载的执行时间、传输速度、吞吐量、资源占用率等。
+
+## 基于一个分区一个副本的基准测试
+
+kafka提供了内置的性能测试工具
+
+- 生产者：测试生产每秒传输的数据量（多少条数据，多少M的数据）
+- 消费者：测试消费每条拉取的数据量
+
+由于我是使用虚拟机的集群，多个分区副本的基准测试还是基于我这台电脑的配置，所以分区越多，反而效率越低。但是如果是真实的服务器，分区多效率是会有明显提升的。
+
+### 创建topic
+
+```bash
+# 创建一个名为benchmark 1分区1副本的主题
+./bin/kafka-topics.sh --zookeeper zlf1:2181 --create --topic benchmark --partitions 1 --replication-factor 1
+```
+
+### 生产消息基准测试
+
+```bash
+# 生产消息基准测试
+./bin/kafka-producer-perf-test.sh --topic benchmark --num-records 5000000 --throughput -1 --record-size 1000 --producer-props bootstrap.servers=zlf1:9092,zlf2:9092,zlf3:9092 acks=1
+```
+
+> ​	./bin/kafka-producer-perf-test.sh
+>
+> --topic topic的名字
+>
+> --num-records 总共指定生产数据量（默认5000w）
+>
+> --throughput 指定吞吐量---限流（-1不指定）
+>
+> --record-size  record数据大小（字节）
+>
+> --producer-props bootstrap.servers=zlf1:9092,zlf2:9092,zlf3:9092 acks=1 指定kafka集群地址，ACK模式
+
+
+
+<img src="./images/Kafka/26.png" style="margin-left:0px">
+
+测试结果
+
+<img src="./images/Kafka/27.png" style="margin-left:0px">
+
+从上图可以看出我这台1G的虚拟机每秒的吞吐量是13956左右（每秒13.31mb的吞吐量），平均的延迟2334.88ms，最大延迟14721ms
+
+### 消费消息基准测试
+
+```bash
+# 消费消息基准测试
+./bin/kafka-consumer-perf-test.sh --broker-list zlf1:9092,zlf2:9092,zlf3:9092 --topic benchmark --fetch-size 1048576 --messages 5000000
+```
+
+> ​	./bin/kafka-consumer-perf-test.sh
+>
+> --broker-list zlf1:9092,zlf2:9092,zlf3:9092 指定kafka集群的地址
+>
+> --topic 指定topic的名称
+>
+> --fetch-size 每次拉取的数据大小
+>
+> --messages 总共要消费的消息个数
+
+测试结果
+
+<img src="./images/Kafka/28.png" style="margin-left:0px">
+
+| 命令 |   含义   |
+| :------------------ | ---- |
+|   data.consumed.in.MB   |   共计消费的数据   |
+|         MB.sec   |  每秒消费的数量    |
+| data.consumed.in.nMsg | 共计消费的数量 |
+| nMsg.sec | 每秒的数量 |
+
+所以上图中共计消费4757.3716MB，每秒消费60.0127MB，共计消费的数量5000000，每秒消费的数量为62927.9098
 
