@@ -108,6 +108,12 @@ public class ThreadLocal1 {
 
 因此，ThreadLocal内存泄漏的根源是：由于ThreadLocalMap的生命周期跟Thread一样长，如果没有手动删除对应key就会导致内存泄漏，而不是因为弱引用。
 
+# Java 和 GO中的用户线程
+
+JVM的java线程 和 操作系统内核线程的比例是1:1，一个java线程对应着一个 内核线程。
+
+GO语言的协程 和 操作系统内核线程的比例是M:N，而且M远远大于N。
+
 
 
 # 锁
@@ -115,6 +121,12 @@ public class ThreadLocal1 {
 ## 什么是锁
 
 为了独占资源，将某种资源私有化的一种物品
+
+## 不持有锁的线程怎么办
+
+1、忙等待
+
+2、进队列等待，由操作系统调度
 
 
 
