@@ -187,7 +187,7 @@ upstream  test-server {
 
 ```bash
 cd /usr/local/nginx/sbin/
-./nginx #启动
+start ./nginx #启动
 ./nginx -s stop #停止
 ./nginx -s quit  #安全退出
 ./nginx -s reload #重新加载配置文件

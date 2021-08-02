@@ -394,6 +394,12 @@ bin/kafka-console-consumer.sh --bootstrap-server zlf1:9092 --topic test --from-b
 
 
 
+## 远程连接kafka时（连接不上）
+
+需要将配置文件中的,这样可视化工具才可以连接上（连接不上的话），ip就是kafka所在的ip地址
+
+![image-20210802161731059](kafka.assets/image-20210802161731059.png)
+
 # kafka基准测试
 
 ## 什么是基准测试
