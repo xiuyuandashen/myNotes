@@ -182,7 +182,7 @@ source /var/lib/mysql/2021-07-31-test.sql;
 
 这时我们会发现，数据已经恢复，而且就是我们备份时的数据（备份后插入的数据不存在，备份之后的数据没恢复）
 
-![image-20210731223501616](mysql日志.assets/image-20210731223501616.png)
+![](mysql日志.assets/image-20210731223501616.png)
 
 #### 恢复未备份的数据
 
@@ -202,6 +202,7 @@ mysqlbinlog --no-defaults mysql-bin.000003 | cat -n | grep -iw 'drop'
 
 ```bash
 mysqlbinlog --no-defaults mysql-bin.000003 | cat -n | sed -n '30,51p';
+# sed -n '30,51p' 列出30行到51行
 ```
 
 ![image-20210731224713209](mysql日志.assets/image-20210731224713209.png)
