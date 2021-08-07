@@ -142,3 +142,11 @@ GO语言的协程 和 操作系统内核线程的比例是M:N，而且M远远大
 
 
 
+## Synchronized 
+
+[一篇讲的比较好的博客]([synchronized详解 - 三分恶 - 博客园 (cnblogs.com)](https://www.cnblogs.com/three-fighter/p/14396208.html))
+
+在Java中，`synchronized`锁可能是我们最早接触的锁了，在 **JDK1.5之前synchronized是一个重量级锁，相对于juc包中的Lock，`synchronized`显得比较笨重**。
+
+庆幸的是在 Java 6 之后 Java 官⽅对从 JVM 层⾯对`synchronized`进行⼤优化，所以现在的 synchronized 锁效率也优化得很不错。
+
