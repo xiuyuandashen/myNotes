@@ -4,7 +4,7 @@
 
 **Client传输或读取数据是通过Channel对应的Buffer进行操作，而不是操作Channel。Channel会与Buffer进行数据交互。**
 
-![image-20220528224730421](D:\笔记\Netty\nio.assets\image-20220528224730421.png)
+![image-20220528224730421](.\nio.assets\image-20220528224730421.png)
 
 
 
@@ -22,7 +22,7 @@
 - **数据的读取写入是通过Buffer，这个与BIO是本质不同的 ，BIO中要么是输入流，要么是输出流，无法双向。而Buffer是支持读和写的，仅需flip方法进行切换模式。**
 - **Channel也是双向的，可以返回底层操作系统的情况，比如Linux，底层的操作系统通道也是双向的。**
 
-![image-20220528233454273](D:\笔记\Netty\nio.assets\image-20220528233454273.png)
+![image-20220528233454273](.\nio.assets\image-20220528233454273.png)
 
 ## Buffer基本使用
 
@@ -50,7 +50,7 @@ public static void main(String[] args) {
 
 Buffer类型：CharBuffer、FloatBuffer、IntBuffer、DoubleBuffer、ShortBuffer、ShortBuffer、ShortBuffer、LongBuffer、ByteBuffer。
 
-![image-20220528231625896](D:\笔记\Netty\nio.assets\image-20220528231625896.png)
+![image-20220528231625896](.\nio.assets\image-20220528231625896.png)
 
 
 
@@ -69,11 +69,11 @@ Buffer的读写是靠position来控制的，当写入时，position会增加。�
 
 相关方法
 
-![](D:\笔记\Netty\nio.assets\image-20220529145316844.png)
+![](.\nio.assets\image-20220529145316844.png)
 
 ByteBuffer相关方法，ByteBuffer是用的最多的Buffer类。
 
-![image-20220529145552760](D:\笔记\Netty\nio.assets\image-20220529145552760.png)
+![image-20220529145552760](.\nio.assets\image-20220529145552760.png)
 
 
 
@@ -187,7 +187,7 @@ public static void main(String[] args) throws IOException {
 
 telnet 127.0.0.1 7000
 
-![image-20220531143255757](D:\笔记\Netty\nio.assets\image-20220531143255757.png)
+![image-20220531143255757](.\nio.assets\image-20220531143255757.png)
 
 
 
@@ -209,7 +209,7 @@ NIO的通道类似于流，但有些区别如下：
 - 通道可以实现异步读写数据。
 - 通道可以从缓冲读取数据，也可以写数据到缓冲。
 
-![image-20220529145953459](D:\笔记\Netty\nio.assets\image-20220529145953459.png)
+![image-20220529145953459](.\nio.assets\image-20220529145953459.png)
 
 
 
@@ -217,13 +217,13 @@ Channel是一个接口，有许多实现：FileChannel、SocketChannel、ServerS
 
 FIleChannel用于文件的读写，DatagramChannel是用于UDP数据的读写。SocketChannel、ServerSocketChannel分别类似BIO中的Socket和ServerSocket。
 
-![image-20220529151248739](D:\笔记\Netty\nio.assets\image-20220529151248739.png)
+![image-20220529151248739](.\nio.assets\image-20220529151248739.png)
 
 比如当服务器端使用ServerSocketChannel会在客户端对应生成一个SocketChannel进行交互。如下图所示：
 
 其中ServerSocketChannel和SockegtChannel都是抽象类，实际上是由他们的实现类进行提供功能。也就是**ServerSocketChannelImpl**和**SockegtChannelImpl**。
 
-![image-20220529152022996](D:\笔记\Netty\nio.assets\image-20220529152022996.png)
+![image-20220529152022996](.\nio.assets\image-20220529152022996.png)
 
 ### FileChannel
 
@@ -330,13 +330,13 @@ public static void main(String[] args) throws Exception{
 
 大致描述一下，省却很多细节
 
-![image-20220531151231295](D:\笔记\Netty\nio.assets\image-20220531151231295.png)
+![image-20220531151231295](.\nio.assets\image-20220531151231295.png)
 
 
 
 
 
-![image-20220531160515849](D:\笔记\Netty\nio.assets\image-20220531160515849.png)
+![image-20220531160515849](.\nio.assets\image-20220531160515849.png)
 
 
 
@@ -443,6 +443,4 @@ public static void main(String[] args) throws Exception{
         socketChannel.close();
 }
 ```
-
-
 
