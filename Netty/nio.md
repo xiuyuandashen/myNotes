@@ -4,7 +4,7 @@
 
 **Client传输或读取数据是通过Channel对应的Buffer进行操作，而不是操作Channel。Channel会与Buffer进行数据交互。**
 
-![image-20220528224730421](.\nio.assets\image-20220528224730421.png)
+![image-20220528224730421](nio.assets\image-20220528224730421.png)
 
 
 
@@ -22,7 +22,7 @@
 - **数据的读取写入是通过Buffer，这个与BIO是本质不同的 ，BIO中要么是输入流，要么是输出流，无法双向。而Buffer是支持读和写的，仅需flip方法进行切换模式。**
 - **Channel也是双向的，可以返回底层操作系统的情况，比如Linux，底层的操作系统通道也是双向的。**
 
-![image-20220528233454273](.\nio.assets\image-20220528233454273.png)
+![image-20220528233454273](nio.assets\image-20220528233454273.png)
 
 ## Buffer基本使用
 
