@@ -50,3 +50,89 @@ Gird是一个组织行列布局的容器控件
 
 ### StackPanel
 
+```xaml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition ></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition ></ColumnDefinition>
+            <ColumnDefinition ></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <!--
+            StackPanel 堆栈面板，默认垂直排列 
+            设置 Orientation="Horizontal" 为水平排列
+            当元素超出范围时隐藏，不会自动换行（列）
+        -->
+        
+        <StackPanel Orientation="Horizontal">
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+
+        </StackPanel>
+
+    </Grid>
+</Window>
+
+```
+
+![image-20230205231152750](./wpf.assets/image-20230205231152750.png)
+
+
+
+### WrapPanel
+
+```xaml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition ></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition ></ColumnDefinition>
+            <ColumnDefinition ></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <!--
+            WrapPanel 该面板默认水平布局，
+            设置 Orientation="Vertical" 为垂直布局
+            当元素超出范围时，自动换行（列）
+        -->
+        <WrapPanel Grid.Row="1" Background="Red" Orientation="Vertical">
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+            <Button Width="100" Height="100"></Button>
+        </WrapPanel>
+        
+    </Grid>
+</Window>
+
+```
+
+![image-20230205231556131](./wpf.assets/image-20230205231556131.png)
+
